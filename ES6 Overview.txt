@@ -1,0 +1,42 @@
+----------[Almost] const, let and scoping------------
+IIFEs to Blocks
+
+----------[Done] Template Literal--
+
+----------[Done] Arrow functions--- 
+
+----------Spread and Rest----
+Spread:
+    It allows an iterable to expand in places where 0+ arguments are expected.
+    apply() to spread
+    concat to spread
+    parameter handling chapter
+Rest:
+    destructuring & parameter handling chapters
+
+The spread operator (...) looks exactly like the rest operator:
+but is used inside function calls and Array literals (not inside destructuring patterns).
+
+Rest used in destructuring (LHS) and function definition
+
+----------[Almost] Destructuring----------------
+Varialbes assignment / declaration
+Function parameters
+    Named parameters
+    Parameter with Default Values
+    arguments to rest parameters
+for-of loop head
+
+----------[Almost] New Features: Object---------
+Object Literals
+    Property shorthand
+    FUnction shorthand
+    Calculated Property Names
+
+----------[Almost] New Features: Array and String-----
+- Array
+- String
+
+----------[] Symbols-----------------
+
+
