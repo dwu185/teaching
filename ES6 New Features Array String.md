@@ -22,7 +22,8 @@
 ```javascript
 const arr = [1, 2, 3]; 
 const arrCopy = [...arr];
-console.log(arrCopy);
+arrCopy[0] = 'altered';
+console.log(`Copy=${arrCopy} Original=${arr}`);
 ```
 - Add elements to an array
 ```javascript
