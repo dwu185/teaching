@@ -5,7 +5,7 @@ IIFEs to Blocks
 
 ----------[Done] Arrow functions--- 
 
-----------Spread and Rest----
+----------[Almost] Spread and Rest----
 Spread:
     It allows an iterable to expand in places where 0+ arguments are expected.
     apply() to spread
@@ -37,6 +37,6 @@ Object Literals
 - Array
 - String
 
-----------[] Symbols-----------------
+----------[Almost] Symbols-----------------
 
 

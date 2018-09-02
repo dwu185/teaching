@@ -39,6 +39,16 @@ console.log(all);
 ```
 
 ---
+## Array is iterable
+### `for-of` loop
+```javascript
+const arr = [1, 2, 3]; 
+for (const i of arr) {
+    console.log(i);
+}
+```
+
+---
 
 ## New Array Class Methods
 ### Array.from
