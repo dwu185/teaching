@@ -4,9 +4,13 @@
 
 ## Overview
 - Iterable
-- Iterator 
+- Iterator
 - Operations that Uses Iteration
+- Make You Own Iterable
 - Summary
+
+note:
+ES6 did not add any new Class called Iterable or Iterator. It also didn't add any new types called Iterable or Iterator. Iterable and Iterator are simply protocals. 
 
 ---
 
@@ -14,12 +18,14 @@
 
 ---
 
-## Iterable
-- Anything that has a method whose key is Symbol.iterator and the method returns an iterator
-- Built-in Iterable Data Structures
+## What is an Iterable?
+- Anything that satisfy the Iterable Protocal is an iterable
+- Iterable Protocal:
+    - `[Symbol.iterator]()`: returns an iterator
+- Built-in iterable data structures
     - Arrays, Strings, Maps, Sets
-    - Plain objects are NOT iterable
-    - WeakMap and WeakSet are NOT iterable
+- Plain objects are NOT iterable
+- WeakMap and WeakSet are NOT iterable
 ```javascript
 const arr = [1, 2, 3];
 console.log(typeof arr[Symbol.iterator]);
@@ -30,8 +36,9 @@ console.log(typeof obj[Symbol.iterator]);
 ```
 
 note:
-iterator is a static property on Symbol class. We can use it to access or modify internal language behavior, in this case, iteration. 
-Why object is not iterable? If object is iterable, you are iterating over properties. But iteration is for iterating over data. If your object is designed to hold data, then you should use Map.
+Symbol.iterator: iterator is a static property on Symbol class. We can use it to access or modify internal language behavior, in this case, iteration.
+What is the iterable protocal? An iterable must has a key Symbol.iterator which is a method, that when invoked, returns an iterator. In other words `Symbol.iterator` is an iterator factory
+Why object is not iterable? If object is iterable, you are iterating over properties. But iteration is designed for iterating over data. If your object is designed to hold data, then you should use Map.
 
 ---
 
@@ -40,86 +47,47 @@ Why object is not iterable? If object is iterable, you are iterating over proper
 ---
 
 ## Iterator
-- Symbol.iterator is an iterator factory
-- What is an iterator?
+### What is an Iterator?
+- General Definition:
     - A pointer that traverses data in a container and returns one element at a time
-    - It is an object that has a next() method.
-- Semantics of next() method
-    - next() returns an object with two properties `done` and `value`
+- JavaScript Definition:
+    - Anything that satisfies the Iterable Protocal is an iterable
+
+---
+
+## Iterator
+### What is the Iterator Protocal?
+- `.next()`: returns an object with two properties `done` and `value`
     - `done` is a boolean indicating whether iteration is finished
-    - `value` can be any type and it's the current value of the iteration. If `done`, `value` is usually ommited.
-
-note:
-When Symbol.iterator is invoked, it returns an iterator. 
-
----
-
-## Iterator
-### Built-in Iterable
-- Let's illustrate an iterator through an array:
+    - `value` can be any type and it's the current value of the iteration
 ```javascript
-const arr = [1, 2, 3];
-const iterator = arr[Symbol.iterator]();
-console.log(iterator.next());
-console.log(iterator.next());
-console.log(iterator.next());
-console.log(iterator.next());
+const arr = [1, 2];
+const arrIterator = arr[Symbol.iterator]();
+console.log(arrIterator.next());
+console.log(arrIterator.next());
+console.log(arrIterator.next());
 ```
-
----
-
-## Iterator
-### Custom Iterable
-- We can make things iterable by correctly defining Symbol.iterator property
-```javascript
-class MyIterable {
-    constructor (str) {
-        this.str = str;
-        this.itrIndex = 0;
-    }
-    [Symbol.iterator]() {
-        return this;
-    }
-    next() {
-        if (this.itrIndex < this.str.length) {
-            this.itrIndex++;
-            const value = this.str.slice(0, this.itrIndex);
-            return { done: false, value };
-        }
-        return {done: true};
-    }
-}
-const myIterable = new MyIterable('hi!');
-const myIterator = myIterable[Symbol.iterator]();
-console.log(myIterator.next());
-console.log(myIterator.next());
-console.log(myIterator.next());
-console.log(myIterator.next());
-```
-
-note:
-Similary we can modify iteration behavior by changing the value of its Symbol.iterator
 
 ---
 
 # Operations that Uses Iteration 
 
 note: 
-Iteration is nice, but accessing the iterator through the iterator symbol and then access the values by calling .next is pretty cubersome.
+Iteration is nice, but accessing the iterator through the iterator symbol and then access each value by calling .next is pretty cubersome.
 Luckily ES6 introduced many language constructs that process iterables seamlessly, which makes this feature so much more powerful.
 
 ---
 
 ## Operations that Uses Iteration 
 ### Destructuring, Spread, Array.from
-- Destructure an iterable and assign values to elements in an array
+- Destructure an iterable to elements in an array
 ```javascript
 const [a, b] = 'hi';
 console.log(`a: ${a}, b: ${b}`);
 ```
 - Spread an iterable into an array
 ```javascript
-const str = '123';
+const arr = [1, 2, 3];
 const arrExpanded = [0, ...arr, 4];
 console.log(`Expanded array: ${arrExpanded}`);
 ```
@@ -135,11 +103,15 @@ console.log(`Array: ${arr}`);
 ### for-of
 - `for-of` loops through an iterable
 ```javascript
-const str = '123'
-for (const i of str) {
+const arr = [1, 2, 3];
+for (const i of arr) {
     console.log(i);
 }
 ```
+
+note:
+Array is iterable but we already have regular for loop and forEach.
+So why should we use for-of to iterate through an array?
 
 ---
 
@@ -173,14 +145,10 @@ for (const num of numbers) {
 }
 ```
 
-note:
-Array is iterable but we already have regular for loop and forEach.
-So why should we use for-of to iterate through an array?
-
 ---
 
 ## Operations that Uses Iteration
-### Map and Set
+### ES6 Map and Set
 - Map and Set constructors can take an iterable as input to populate the container
     - WeakMap and WeakSet constructors work similarly
 ```javascript
@@ -194,9 +162,81 @@ console.log(map);
 const set = new Set('123');
 console.log(set);
 ```
-- Map and Set are iterables themselves. You can clone a map/set using it's constructor.
+- Map and Set are iterables themselves. You can shallow clone a map/set using its constructor
+```javascript
+const mapClone = new Map(map);
+```
 
 ---
 
-## Operations that Uses Iteration 
-### yield*
+# Make You Own Iterable
+
+---
+
+## Make You Own Iterable
+```javascript
+class MyIterable {
+    constructor (str) {
+        this.str = str;
+        this.itrIndex = 0;
+    }
+    [Symbol.iterator]() {
+        const next = () => {
+            if (this.itrIndex < this.str.length) {
+                this.itrIndex++;
+                const value = this.str.slice(0, this.itrIndex);
+                return { value }; // Omitted done
+            }
+            return { done: true }; //Omitted value
+        }
+        return {next};
+    }
+}
+const myIterable = new MyIterable('abc');
+for (const i of myIterable) {
+    console.log(i);
+}
+```
+
+note:
+Simplified return value of next method: can omit `done` if it is false, can omit `value` if it is undefined
+
+---
+
+## Make You Own Iterable
+### Iterable is also a Iterator
+```javascript
+class MyIterable {
+    constructor (str) {
+        this.str = str;
+        this.itrIndex = 0;
+    }
+    [Symbol.iterator]() {
+        return this;
+    }
+    next() {
+        if (this.itrIndex < this.str.length) {
+            this.itrIndex++;
+            const value = this.str.slice(0, this.itrIndex);
+            return { value };
+        }
+        return { done: true };
+    }
+}
+const myIterable = new MyIterable('abc');
+for (const i of myIterable) {
+    console.log(i);
+}
+```
+
+note:
+Pattern to simplify the implementation of an iterable: Make the iterable also the iterator. 
+const myIterable2 = new MyIterable('abc');
+myIterable2.next();
+
+---
+
+## Summary
+- Something is iterable if it has Symbol.iterator implemented as a iterator factory
+- Something is iterator if it has next method returning {done, value} object with each call
+- Coming up: It is much easier to implement an iterable via a generator
