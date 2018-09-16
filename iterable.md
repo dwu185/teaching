@@ -1,3 +1,9 @@
+---
+layout: bb-reveal-single-slide
+title: ES6 Iterable
+controlsFlag: true
+---
+
 # ES6 Iterable
 
 ---
@@ -5,12 +11,12 @@
 ## Overview
 - Iterable
 - Iterator
-- Operations that Uses Iteration
-- Make You Own Iterable
+- Operations that Use Iteration
+- Make Your Own Iterable
 - Summary
 
 note:
-ES6 did not add any new Class called Iterable or Iterator. It also didn't add any new types called Iterable or Iterator. Iterable and Iterator are simply protocals. 
+ES6 did not add any new Class called Iterable or Iterator. It also didn't add any new types called Iterable or Iterator. Iterable and Iterator are simply protocols.
 
 ---
 
@@ -19,8 +25,8 @@ ES6 did not add any new Class called Iterable or Iterator. It also didn't add an
 ---
 
 ## What is an Iterable?
-- Anything that satisfy the Iterable Protocal is an iterable
-- Iterable Protocal:
+- Anything that satisfies the Iterable Protocol is an iterable
+- Iterable Protocol:
     - `[Symbol.iterator]()`: returns an iterator
 - Built-in iterable data structures
     - Arrays, Strings, Maps, Sets
@@ -36,9 +42,9 @@ console.log(typeof obj[Symbol.iterator]);
 ```
 
 note:
-Symbol.iterator: iterator is a static property on Symbol class. We can use it to access or modify internal language behavior, in this case, iteration.
-What is the iterable protocal? An iterable must has a key Symbol.iterator which is a method, that when invoked, returns an iterator. In other words `Symbol.iterator` is an iterator factory
-Why object is not iterable? If object is iterable, you are iterating over properties. But iteration is designed for iterating over data. If your object is designed to hold data, then you should use Map.
+`Symbol.iterator` is a well known symbol: a static property on Symbol class. We can use it to access or modify internal language behavior, in this case, iteration.
+What is the iterable protocol? An iterable must have a key Symbol.iterator which is a method, that when invoked, returns an iterator. In other words `Symbol.iterator` is an iterator factory
+Why is object not iterable? If object is iterable, you are iterating over properties. But iteration is designed for iterating over data. If your object is designed to hold data, then you should use Map.
 
 ---
 
@@ -51,15 +57,15 @@ Why object is not iterable? If object is iterable, you are iterating over proper
 - General Definition:
     - A pointer that traverses data in a container and returns one element at a time
 - JavaScript Definition:
-    - Anything that satisfies the Iterable Protocal is an iterable
+    - Anything that satisfies the Iterable Protocol is an iterable
 
 ---
 
 ## Iterator
-### What is the Iterator Protocal?
+### What is the Iterator Protocol?
 - `.next()`: returns an object with two properties `done` and `value`
     - `done` is a boolean indicating whether iteration is finished
-    - `value` can be any type and it's the current value of the iteration
+    - `value` can be any type and it is the current value of the iteration
 ```javascript
 const arr = [1, 2];
 const arrIterator = arr[Symbol.iterator]();
@@ -70,15 +76,15 @@ console.log(arrIterator.next());
 
 ---
 
-# Operations that Uses Iteration 
+# Operations that Use Iteration
 
-note: 
+note:
 Iteration is nice, but accessing the iterator through the iterator symbol and then access each value by calling .next is pretty cubersome.
 Luckily ES6 introduced many language constructs that process iterables seamlessly, which makes this feature so much more powerful.
 
 ---
 
-## Operations that Uses Iteration 
+## Operations that Use Iteration
 ### Destructuring, Spread, Array.from
 - Destructure an iterable to elements in an array
 ```javascript
@@ -99,9 +105,9 @@ console.log(`Array: ${arr}`);
 
 ---
 
-## Operations that Uses Iteration
-### for-of
-- `for-of` loops through an iterable
+## Operations that Use Iteration
+### for...of
+- `for...of` loops through an iterable
 ```javascript
 const arr = [1, 2, 3];
 for (const i of arr) {
@@ -111,19 +117,19 @@ for (const i of arr) {
 
 note:
 Array is iterable but we already have regular for loop and forEach.
-So why should we use for-of to iterate through an array?
+So why should we use for...of to iterate through an array?
 
 ---
 
-### for loop vs. forEach() vs. for-of
+### `for` loop vs. `forEach()` vs. `for...of`
 - for loop: can break/continue
 ```javascript
 const numbers = [1, 2, 3, 4, 5];
 let sum = 0;
 for (let i = 0; i < numbers.length; ++i) {
-	if (sum + numbers[i] > 10) 
+	if (sum + numbers[i] > 10)
 		break;
-	else 
+	else
 		sum += numbers[i];
 }
 ```
@@ -131,11 +137,11 @@ for (let i = 0; i < numbers.length; ++i) {
 ```javascript
 let sum = 0;
 numbers.forEach( (num) => {
-	if (sum + num <= 10) 
+	if (sum + num <= 10)
 		sum += num;
 });
 ```
-- for-of: combines two advantages
+- for...of: combines two advantages
 ```javascript
 let sum = 0;
 for (const num of numbers) {
@@ -147,7 +153,7 @@ for (const num of numbers) {
 
 ---
 
-## Operations that Uses Iteration
+## Operations that Use Iteration
 ### ES6 Map and Set
 - Map and Set constructors can take an iterable as input to populate the container
     - WeakMap and WeakSet constructors work similarly
