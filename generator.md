@@ -1,3 +1,9 @@
+---
+layout: bb-reveal-single-slide
+title: ES6 Iterable
+controlsFlag: true
+---
+
 # ES6 Generator
 
 ---
@@ -7,7 +13,6 @@
 - Use Cases
     - Generator as Data Producer
     - Generator as Data Consumer
-    - 
 
 ---
 
@@ -27,7 +32,7 @@ console.log(typeof gen);
 ```
 - Unlike regular function...
     - Generator does not need to run to completion
-    - Generator can be paused and resumed later
+    - Generator can be suspended and resumed later
 
 note:
 In the example below, the generator looks very similar to a normal function. However, there's a big difference between them.
@@ -47,7 +52,7 @@ function* gen () {
 - Three New Keywords
     - `function*`: indicates that the function is a generator
     - `yield`:  determines where to pause; can receive input and generate output
-    - `yield*`: let you use another iterable or generator  
+    - `yield*`: let you use another iterable or generator
 - Other special statements
     - `return`
     - `throw`
@@ -66,9 +71,9 @@ function* gen () {
 }
 const generatorObj = generatorFunction();
 ```
-- With reference to the generator object:
+- The generator object:
     - Can control the execution of its generator function
-    - Can pass input in or receive output from its generator function
+    - Can pass input into or receive output from its generator function
 - Three APIs to control execution
     - `generatorObj.next(val)`
     - `generatorObj.return(val)`
@@ -98,15 +103,15 @@ Next, we will cover how does a generator function and its generator object inter
     - `yield* iterator;`
 - A generator object can access those data with `generatorObj.next()`
     - returns data as an object containing `done` and `value`
-- Generator object satisfies iterator protocal!
+- Generator object satisfies iterator protocal
     - Iterator is a commonly used data producer
-- Generator object also satisfies iterable prototcal
+- Generator object also satisfies iterable prototcol
     - The importance of this will be covered later
 
---- 
+---
 
 ## Generator Object as Data Producer
-### `yield val;` and `generatorObj.next()`
+### `yield val` and `generatorObj.next()`
 - A generator function with two `yield`
 - next() returns `{value: val: done: false}`
 ```javascript
@@ -213,7 +218,7 @@ These language constructs ignore the return value if iteration is done. You can 
 
 ## Generator Object as Data Producer
 ### An Easier way to Implement Iterable
-left column
+- Without using generator...
 ```javascript
 class MyIterable {
     constructor (str) {
@@ -237,7 +242,27 @@ for (const i of growingStr) {
     console.log(i);
 }
 ```
-right column
+- Use generator...
+<!--DIV-LEFTCOLUMN-->
+```javascript
+class MyIterable {
+    constructor (str) {
+        this.str = str;
+        this.itrIndex = 0;
+    }
+    *[Symbol.iterator] () {
+        while (this.itrIndex < this.str.length) {
+            this.itrIndex++;
+            yield this.str.slice(0, this.itrIndex);
+        }
+    }
+}
+const growingStr = new MyIterable('abc');
+for (const i of growingStr) {
+    console.log(i);
+}
+```
+<!--DIV-RIGHTCOLUMN-->
 ```javascript
 function* growingStrGen (str) {
     let grow = '';
@@ -274,7 +299,7 @@ Given a generator, you can easily generate an array of all data with spread.
 
 ## Generator Object as Data Consumer
 ### How?
-- Three ways a generator object that pass data into a generator function:
+- A generator object can pass data into a generator function in three ways:
     - `generatorObject.next(value)`
     - `generatorObject.return(value)`
     - `generatorObject.throw(err)`
@@ -285,7 +310,7 @@ Given a generator, you can easily generate an array of all data with spread.
 ## Generator Object as Data Consumer
 ### `generatorObject.next(value)` and `yield`
 - Invoke `next(value)` with a single argument `value` will pass it into the generator function
-- `value` will be assigned to the currently suspended `yield` 
+- `value` will be assigned to the currently suspended `yield`
 ```javascript
 function* gen() {
     console.log('start');
@@ -332,7 +357,7 @@ Two main differences compare to generator object as a data producer:
 function* gen() {
     console.log('start');
     console.log(yield);
-    return 'end'
+    return 'end';
 }
 const generatorObj = gen();
 ```
@@ -353,7 +378,7 @@ throw: second `next` will throw the error
 
 ## Generator Object as Data Consumer
 ### `generatorObject.return(value)`
-- Generator object can terminates the generator with `return()`
+- Generator object can terminate the generator with `return()`
 ```javascript
 function* gen() {
     while (true) {
@@ -369,7 +394,7 @@ generatorObj.return('b');
 
 note:
 Before calling `return()`, execution is pausing at the yield statement.
-When `return()` is called, the generator function get terminated. You can imagine the yield statement getting replaced by the return statement.
+When `return()` is called, the generator function terminates. You can imagine the yield statement getting replaced by the return statement.
 
 ---
 
@@ -405,36 +430,3 @@ function* gen() {
 note:
 You can imagine the suspended yield statement getting replaced by the throw statement.
 Protection the generator from crashing by wrapping code block containing yield in try-catch
-
----
-
-
-JavaScript does not natively support coroutine. 
-
-coroutine can directly control where execution continues immediately after they yield. Generators cannot, it transfers control back to the generator's caller. 
-
-iterator in standard libraries: new iterable each call of Symbol.iterator
-generator: same iterator 
-
-Handling clean-up in generators via try-finally
-Whenever one leaves a for-of loop early, for-of sends a return() to the current iterator. That means that the cleanup step isn’t reached:
-function* genFunc() {
-    yield 'a';
-    yield 'b';
-    console.log('Performing cleanup');
-}
-for (const x of genFunc()) {
-    console.log(x);
-    break;
-}
-// Output:
-// a
-Thankfully, this is easily fixed, by performing the cleanup in a finally clause:
-function* genFunc() {
-    try {
-        yield 'a';
-        yield 'b';
-    } finally {
-        console.log('Performing cleanup');
-    }
-}
