@@ -3,7 +3,7 @@ layout: bb-reveal-single-slide
 title: ES6 Containers
 controlsFlag: true
 ---
-
+ 
 # ES6 Containers
 
 ---
@@ -16,13 +16,16 @@ controlsFlag: true
 - `Set`
 - `WeakMap`
 - `WeakSet`
-- Iterables
+
+===
+
+# Background
 
 ---
 
 ## Background: The Old Containers
 
-* JS used to have two categories of containers
+* JavaScript used to have two categories of containers
   * Arrays - Typically used for a collection of similar items
   * Objects - Allowing key-value matching using the object's properties
 * Both are regular objects under the hood, with keys being `string`
@@ -33,54 +36,60 @@ controlsFlag: true
 
 ## Background: The Old Iteration Techniques
 
-* Iterating through arrays could be done with `Array` methods `map`, `forEach`, `reduce`, `filter`, or traditional loops (`for`, `while`, `do...while`) depending on what we are trying to do
-* Iterating through objects was done via `for...in` or by using `Object` methods such as `Object.keys()`
-  * These would iterate through enumerable properties of the object
-  * In the case of `for...in`, all enumerable properties would be traversed
-    * With no regard of where in the prototype chain they were found
-* ES6 introduced the idea of **Iterable Objects**, which can be more easily traversed than traditional object
-  * They also allow the user to decide *how* to iterate those objects
+* Iterating through arrays 
+  - `Array` methods such as `map`, `forEach`, `reduce`, `filter`
+  - Tranditional loops `for`, `while`, `do...while`
+* Iterating through objects
+  - Object methods such as `Object.keys()` or `Object.getOwnPropertyNames()`
+  - `for...in` loop
+* ES6 introduced the concept of **Iterable Objects**, which can be more easily traversed than traditional object
+
+===
+
+# `for...of`
 
 ---
 
 ## `for...of`
 
-* ES6 Introduces `for...of`
-* It allows iterating through the values of any **iterable** item
-* Arrays and strings are iterable
-  * So are the new `Map` and `Set`
-* It is possible to make other objects iterables (see later slide)
+* ES6 introduces `for...of`
+* It allows iterating through the values of any **iterable**
+* Arrays and strings are both iterable
+* ES6 `Map` and `Set` are also iterable
 
 ```javascript
-const str = "Hello World";
 const arr = [1, 2, 3, 4, 5];
-
 for (const n of arr) {
     console.log(n);
 }
 
+const str = "Hello World";
 for (const l of str) {
     console.log(l);
 }
 ```
+
+===
+
+# `Map`
 
 ---
 
 ## `Map`
 
 * `Map` is a container holding key-value pairs
-* Unlike regular Objects, keys can be any type (both objects and primitives)
-* `Map` is also capable of using `NaN` as a key
-* `Map` iteration with `for...of` is done via an array with `[key, value]`
-  * Example to follow
+* Keys can be any type (both objects and primitives)
+  * `Map` is able to handle `NaN` as a unique value despite `NaN !==NaN`
+* `Map` is iterable
+* `typeof` a map is 'object'
 
 ---
 
 ## Differences Between `Map` and `Object`
 
-* We can get the size of a `Map` with `.size`
-* Properties of `Map` prototype chain cannot collide with Map's keys
-* `Map` can perform better when doing frequent addition and removals of key pairs
+* `Map` has some useful APIs such as `.size()`, `.clear()` etc.
+* Properties of `Map` prototype chain cannot collide with data stored in a map
+  * It is not the case for objects: interested side effects when adding/deleting a key/value pair
 
 ```javascript
 // Old way to avoid prototype collisions
@@ -92,17 +101,22 @@ container["foo"] = "bar";
 const map = new Map([["key", 123],["foo","bar"]]);
 ```
 
-Note: In order to use Objects like Maps in the past without worrying about prototype collisions, it was possible to do Object.create(null), making a clean object with a `null` prototype.
+* `Map` can perform better when doing frequent additions and removals of data
+* Order of data insertion is preserved
+* Plain objects are not iterable
+
+note: 
+In order to use Objects like Maps in the past without worrying about prototype collisions, it was possible to do Object.create(null), making a clean object with a `null` prototype.
 
 ---
 
 ## Creating and Using a `Map`
 
-* Created with `new Map()`
-  * An iterable giving `[key, value]` pairs can be passed to the function constructor
-* Set values with `.set(key, value)`
-* Get values with `.get(key)`
-* Remove values with `.delete(key)`
+* Created with `new Map()` or `new Map(iterable)`
+  * An iterable of `[key, value]` pairs can be passed to the constructor
+* Store a key/value pair with `.set(key, value)`
+* Get value of a given key with `.get(key)`
+* Remove a key/value pair with `.delete(key)`
 * Check if a key exists with `.has(key)`
 * For a full list, refer to [MDN - Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)
 
@@ -112,53 +126,79 @@ Note: In order to use Objects like Maps in the past without worrying about proto
 
 ```javascript
 const m = new Map();
-const m2 = new Map([[1, "one"], [2, "two"], [NaN, "Not a number"]]);
 m.set("hello", "World");
 console.log(m.get("hello"));
-if (m2.has(NaN)) {
-    m2.delete(NaN);
+```
+
+```javascript
+const m = new Map([[1, "one"], [2, "two"], [NaN, "Not a number"]]);
+if (m.has(NaN)) {
+    m.delete(NaN);
 }
-for (const [k, v] of m2) {
-    console.log(`${k} - ${v}`);
-}
-console.log([...m2]);
+console.log(m.has(NaN));
 ```
 
 ---
 
 ## Iterating Through a `Map`
 
-* Besides `for...of`, it is possible to use
-  * `.forEach(callback[, thisArg])`
-  * `.entries()` (returns an `Iterator` object with `[key, value]` pairs)
-  * `.values()` (returns an `Iterator` object with the values)
-  * `.keys()` (returns an `Iterator` object with the keys)
-* `Map` is iterated through in insertion order
+* Any JavaScript features that can handle iterables can handle maps
+* We can use `for...of` or spread operator `...`
 
 ```javascript
-const m = new Map([[1, "one"], [2, "two"], [NaN, "Not a number"]]);
-m.forEach((v, k) => console.log(`${k} - ${v}`));
-const i1 = m.entries();
-console.log(i1.next().value);
-const i2 = m.values();
-console.log(i2.next().value);
+const m = new Map([[1, "one"], [2, "two"]]);
+for (const [k, v] of m) { //destructuring
+    console.log(`${k} - ${v}`);
+}
+console.log([...m]);
 ```
+
+---
+
+## Iterating Through a `Map`
+
+* `Map` also have some built-in APIs
+  * `.forEach(callback[, thisArg])`
+  * `.entries()` (returns an iterable with `[key, value]` pairs)
+  * `.values()` (returns an iterable with the values)
+  * `.keys()` (returns an iterable with the keys)
+
+```javascript
+const m = new Map([[1, "one"], [2, "two"]]);
+m.forEach((v, k) => {
+  //callback: value is the first parameter
+  console.log(`${k}: ${v}`);
+});
+console.log([...m.keys()]);
+console.log([...m.values()]);
+```
+* `Map` is iterated through in insertion order
+
+===
+
+# `Set`
 
 ---
 
 ## `Set`
 
 * `Set` is a container of unique values
-  * Values can be primitives or Object references
-* `Set` uses strict equality (`===`) to check for uniqueness
-  * However, `NaN` may still be used as a unique item despite `NaN !== NaN`
-* Unlike Arrays, `Set` has `.size` containing the actual amount of items in the `Set`
+* Values can be any type (both objects and primitives)
+  * `NaN` is treated as one unique value despite `NaN !== NaN`
+  * 0, -0 and +0 are also treated as one unique value
+* `Set` is iterable
+* `typeof` a set is 'object'
+
+```javascript
+console.log(new Set([NaN, NaN, NaN]));
+console.log(new Set([0, -0, +0]));
+```
 
 ---
 
 ## Creating and Using a `Set`
 
-* Created with `new Set()`
+* Created with `new Set()` or `new Set(iterable)`
   * An iterable object may be passed in to populate the `Set`
 * Add an item with `.add(value)`
 * Check for the presence of an item with `.has(value)`
@@ -167,57 +207,77 @@ console.log(i2.next().value);
 
 ```javascript
 const s = new Set();
-const s2 = new Set([1, 2, 1, NaN, "2"]);
 s.add(123);
+console.log(s);
+```
+
+```javascript
+const s2 = new Set([1, 2, 1, NaN, "2"]);
 if (s2.has(NaN)) {
     s2.delete(NaN);
 }
-for (const o of s2) {
-    console.log(o);
-}
-console.log([...s2]);
+console.log(s2);
 ```
 
 ---
 
 ## Iterating Through a `Set`
 
-* Besides `for...of`, it is possible to use
+* Any JavaScript features that can handle iterables can handle maps
+* We can use `for...of` or spread operator `...`
+
+```javascript
+const s = new Set([1, 2, 1, NaN, "2"]);
+for (const o of s) {
+    console.log(o);
+}
+console.log([...s]);
+```
+---
+
+## Iterating Through a `Set`
+
+* `Set` also have some built-in APIs
   * `.forEach(callback[, thisArg])`
-  * `.values()` (returns an `Iterator` object containing the values in the Set)
-  * `Set` also has `.entries()` and `.keys()`, but they provide little added value since the key of an item in a `Set` is equal to its value
-* `Set` is iterated through in insertion order
+  * `.values()` (returns an iterable containing the values in the Set)
+  * `.entries()` and `.keys()` provide little value since the key of an item in a `Set` is equal to its value
 
 ```javascript
 const s = new Set([1, "1", NaN, "NaN"]);
 s.forEach(v => console.log(`Value: ${v}`));
-const it = s.values();
-console.log(it.next().value);
+console.log([...s.values()]);
 ```
+* `Set` is iterated through in insertion order
+
+===
+
+# `WeakMap` and `WeakSet`
 
 ---
 
 ## `WeakMap`
 
-* JS has a special type of `Map` called `WeakMap`
+* ES6 also introduced a special type of `Map` called `WeakMap`
 * Like `Map`, it holds key-value pairs
 * Unlike `Map`, keys **must** be object references
 * Unlike other object references, the keys in a `WeakMap` are *weak references*
-  * This means that they do not prevent garbage collection of the object
+  * They do not prevent garbage collection if there are no other references to the values
 * `WeakMap` has limited functionality:
   * `.delete(key)`
   * `.get(key)`
   * `.has(key)`
   * `.set(key, value)`
 * `WeakMap` is **not** iterable
+* WeakMap can be used as a mechanism to achieve privacy
 
-Note: A WeakMap can be used to create privacy inside an object. [Reference](https://www.sitepen.com/blog/2015/03/19/legitimate-memory-efficient-privacy-with-es6-weakmaps/)
+note: 
+A WeakMap can be used to create privacy inside an object. [Reference](https://www.sitepen.com/blog/2015/03/19/legitimate-memory-efficient-privacy-with-es6-weakmaps/)
 
 ---
 
 ## `WeakSet`
 
-* Similarly to `WeakMap`, JS has a `WeakSet` able to hold a unique collection of weak object references
+* Similarly to `WeakMap`, JavaScript has a `WeakSet` able to hold a unique collection of weak object references
 * `WeakSet` can only contain object references
 * `WeakSet` has limited functionality:
   * `.add(value)`
@@ -225,23 +285,74 @@ Note: A WeakMap can be used to create privacy inside an object. [Reference](http
   * `.has(value)`
 * `WeakSet` is **not** iterable
 
+===
+
+# Exercise
+
 ---
 
-## Appendix: Making an Object Iterable
-
-* Add a key `Symbol.iterator` containing a generator function that yields your data
-  * This implies knowledge of how to write generators
-
+## Exercise
+- Save object's own iterable properties into a map
 ```javascript
-const myIterable = {
-    arrData: [ 1, 2, 3, 4 ],
-    objData: { a: 5, b: 6, c: 7 },
-    [Symbol.iterator]: function* () {
-        yield* this.arrData;
-        yield* Object.entries(this.objData);
-    }
-};
-for (const o of myIterable) {
-    console.log(o);
+const obj = {a: 'a', b: 'b', c: 'c'};
+function getMapFromObj(obj) {
+  //TODO
 }
+console.log(getMapFromObj(obj));
+```
+- Clean up the code below by replacing array with set
+```javascript
+function bulkAdd(set, values) {
+  for (const val of values) {
+    if (set.indexOf(val) === -1) {
+      set.push(val);
+    }
+  }
+  return set;
+}
+function bulkRemove(set, values) {
+  for (const val of values) {
+    const index = set.indexOf(val);
+    if (index !== -1) {
+      set.splice(index, 1);
+    }
+  }
+  return set;
+}
+console.log(bulkAdd([], [1,1,2,2,3]));
+console.log(bulkRemove([1, 2, 3], [1, 4, 3]));
+```
+
+note:
+```javascript
+const obj = {k1: 'v1', k1: 'v2', k3: 'v3'};
+function getMapFromObj(obj) {
+  const map = new Map();
+  for (const prop in obj) {
+    if (obj.hasOwnProperty(prop)) {
+      map.set(prop, obj[prop]);
+    }
+  }
+  return map;
+}
+console.log(getMapFromObj(obj));
+```
+```javascript
+function bulkAdd(set, values) {
+  for (const val of values) {
+    set.add(val);
+  }
+  return set;
+}
+function bulkRemove(set, values) {
+  for (const val of values) {
+    const index = set.indexOf(val);
+    if (index !== -1) {
+      set.splice(index, 1);
+    }
+  }
+  return set;
+}
+console.log(bulkAdd([], [1,1,2,2,3]));
+console.log(bulkRemove([1, 2, 3], [1, 4, 3]));
 ```

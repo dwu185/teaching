@@ -114,7 +114,7 @@ console.log(JSON.stringify(obj));
 - Symbols help to make properties harder to access but not impossible
     - There are APIs that can expose symbols
 - Symbols make the author's intention of privacy very clear
-- Separate private properties from enumerations
+- Separate private properties from enumeration
 <!--DIV-LEFTCOLUMN-->
 ```javascript
 let Item = (function() {
@@ -152,8 +152,9 @@ console.log(item.getPrice());
 
 ## Symbol Across Realms
 - Symbols created with `Symbol()` are local symbols
-- Symbols created with `Symbol.for(key)` are global symbols
-    - Global Symbol Registry
+- Global Symbol Registry: 1-1 matches of a unique key (string) to a symbol
+    - Accessible across service workers and iframes
+- `Symbol.for(key)` retrieves the symbol with the given key; if not exist, create one in the registry
 ```javascript
 let iframe = document.createElement('iframe');
 iframe.src = String(window.location);
@@ -162,7 +163,7 @@ document.body.appendChild(iframe);
 const sym = Symbol.for('foo');
 console.log(sym === iframe.contentWindow.Symbol.for('foo'));
 ```
-- Distinguish local and global symbol with Symbol.keyFor(sym), which retrieves a the symbol key from the global symbol registry for a given symbol
+- `Symbol.keyFor(sym)` retrieves the given symbol's key from the global symbol registry
 ```javascript
 const local_sym = Symbol('local');
 const global_sym = Symbol.for('global');
@@ -179,7 +180,7 @@ Symbol.for with input `key` searches for symbol with the given key in the global
 
 ## Symbol for Metaprogramming
 - Static properties on Symbol class give developers access to some build-in symbols representing JavaScript's internal language behaviors
-- Some Examples:
+- Some well-known symbols:
     - `Symbol.iterator`: `for...of`
     - `Symbol.match`: `String.prototype.match`
     - `Symbol.hasInstance`: `instanceof`
@@ -196,4 +197,61 @@ console.log("test" instanceof customized);
 
 note:
 The fact that symbol is unique makes it a suitable tool for metaprogramming in JavaScript.
-These static symbols alsters the internals of the JavaScript engine.
+These static symbols alters the internals of the JavaScript engine.
+
+===
+
+# Exercise
+
+---
+
+## Exercise
+Write an Employee type. Each employee instance has an `age` property and a `name` property. The age of an employee should not be public. There need to be an `isAdult` method which returns true if employee is 21 or older.
+```javascript
+let ben = new Employee(21, 'Ben');
+console.log(ben.isAdult()); //true
+let susan = new Employee(19, 'Ben');
+console.log(susan.isAdult()); //false
+```
+
+---
+
+note:
+```javascript
+const Employee = (function() {
+    const _age = Symbol('age');
+    const _name = Symbol('name');
+    function Employee(age, name) {
+        this[_age] = age;
+        this[_name] = name;
+    }
+    Employee.prototype.isAdult = function () {
+        return this[_age] >= 21;
+    }
+    return Employee;
+})();
+let ben = new Employee(21, 'Ben');
+console.log(ben.isAdult()); //true
+let susan = new Employee(19, 'Ben');
+console.log(susan.isAdult()); //false
+```
+```javascript
+const Employee = (function() {
+    const _age = Symbol('age');
+    const _name = Symbol('name');
+    class Employee {
+        constructor (age, name) {
+            this[_age] = age;
+            this[_name] = name;                
+        }
+        isAdult () {
+            return this[_age] >= 21;
+        }
+    }
+    return Employee;
+})();
+let ben = new Employee(21, 'Ben');
+console.log(ben.isAdult()); //true
+let susan = new Employee(19, 'Ben');
+console.log(susan.isAdult()); //false
+```
